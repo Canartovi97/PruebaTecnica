@@ -85,13 +85,7 @@ modeladas en el esquema porque las decisiones del cliente son el siguiente
 modulo natural sobre esta misma base de datos, aunque su logica de servicio
 no se implemento en esta entrega (ver `Justificación.md`, seccion 1).
 
-> **Nota de implementacion**: el diagrama muestra `role` y `status` como
-> tipos enumerados a nivel conceptual, pero SQLite no soporta `enum`
-> nativo en Prisma. En `prisma/schema.prisma` esos campos son `String`,
-> y sus valores validos se tipan en `src/common/enums.ts` y se validan
-> en el limite HTTP con Zod. Es un detalle de implementacion, no del
-> diseno: el contrato (que valores son validos y quien los usa) es el
-> mismo que muestra este diagrama.
+
 
 ## 4. Flujo implementado (secuencia)
 

@@ -2,16 +2,12 @@
 
 ## ¿Por qué elegí la estructura arquitectónica propuesta?
 
-Elegí un **monolito modular por dominio** (no por capa técnica global) con
+Elegí un monolito modular por dominio con
 cuatro capas internas por módulo: `routes → controller → service →
 repository`. Para el alcance de esta prueba (1–2 horas, un componente
-concreto) un microservicio por módulo habría sido sobre-ingeniería:
+concreto) un microservicio por módulo habría sido demasiado:
 añade orquestación, red y despliegue sin aportar valor al problema que
-se está resolviendo. Pero un monolito desordenado tampoco es aceptable en
-una prueba para un rol de liderazgo técnico, así que apliqué el mismo
-criterio que uso en Sclub y en los proyectos que lidero en Keep Calm:
-aislar la lógica de negocio (`service.ts`) tanto de HTTP como de la base
-de datos (`repository.ts`), para que:
+se está resolviendo. 
 
 - Los tests unitarios del `service` no necesiten levantar Express.
 - Cambiar de Prisma a otro ORM, o de SQLite a PostgreSQL, no toque una sola
@@ -31,7 +27,7 @@ En esta entrega **no implementé autenticación** porque era una de las tres
 opciones del punto 2 y elegí "Gestión de solicitudes y ofertas" en su
 lugar; no tendría sentido construir JWT a medias solo para decorar el
 componente elegido. Lo que sí implementé, porque es responsabilidad del
-componente elegido, es **autorización por rol a nivel de servicio**:
+componente elegido, es autorización por rol a nivel de servicio:
 `userService.assertRole()` verifica que quien crea una `ProductRequest`
 tenga rol `CLIENT` y que quien crea una `Offer` tenga rol `PROVIDER`,
 antes de tocar la base de datos. Esa validación vive en la capa de

@@ -2,11 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { ApiError } from '../utils/ApiError';
 
-/**
- * Middleware centralizado de errores. Toda la aplicacion lanza
- * ApiError o ZodError; este es el unico lugar que sabe traducir
- * eso a una respuesta HTTP consistente.
- */
+
 export function errorHandler(
   err: unknown,
   _req: Request,

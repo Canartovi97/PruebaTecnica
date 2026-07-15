@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cliente de prueba · Sistema de Solicitudes</title>
+<style>
+  :root {
+    --teal: #0f766e;
+    --teal-dark: #0b5a54;
+    --ink: #1c2321;
+    --muted: #667070;
+    --line: #dfe5e3;
+    --bg: #f7f9f8;
+    --card: #ffffff;
+    --danger: #b3261e;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+  header h1 span { color: #5eead4; }
+  .conn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    font-size: 13px;
+  }
+  .conn input {
+    background: #2a3230;
+    border: 1px solid #3d4644;
+    color: #fff;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    width: 210px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; flex-shrink: 0; }
+  .dot.ok { background: #34d399; }
+  .dot.bad { background: #f87171; }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    background: var(--teal);
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--teal-dark); }
+  button.ghost {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  button.ghost:hover { background: #eef2f1; }
+  main {
+    max-width: 1180px;
+    margin: 24px auto;
+    padding: 0 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1.3fr;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } }
+  section.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  section.card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  section.card p.hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  input, select, textarea {
+    font: inherit;
+    font-size: 13.5px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    width: 100%;
+  }
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+  .divider { border: none; border-top: 1px solid var(--line); margin: 14px 0; }
+  .item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+  }
+  .item:hover { border-color: var(--teal); }
+  .item.selected { border-color: var(--teal); background: #ecfdf5; }
+  .item-title { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .item-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .b-client { background: #e0f2fe; color: #075985; }
+  .b-provider { background: #ede9fe; color: #5b21b6; }
+  .b-open { background: #dcfce7; color: #166534; }
+  .b-negotiation { background: #fef3c7; color: #92400e; }
+  .b-closed { background: #e5e7eb; color: #374151; }
+  .b-pending { background: #dbeafe; color: #1e40af; }
+  .b-accepted { background: #dcfce7; color: #166534; }
+  .b-rejected { background: #fee2e2; color: #991b1b; }
+  .b-countered { background: #ede9fe; color: #5b21b6; }
+  .empty { color: var(--muted); font-size: 13px; padding: 10px 0; }
+  .error-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--danger);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+  .list-scroll { max-height: 340px; overflow-y: auto; padding-right: 2px; }
+  code { background: #eef2f1; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Solicitudes <span>·</span> cliente de prueba</h1>
+  <div class="conn">
+    <span class="dot" id="connDot"></span>
+    <input id="baseUrl" value="http://localhost:3000" />
+    <button class="ghost" onclick="refreshAll()">Reconectar</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- USUARIOS -->
+  <section class="card">
+    <h2>Usuarios</h2>
+    <p class="hint">Necesitas al menos un CLIENT y un PROVIDER para probar el flujo.</p>
+    <div id="userError"></div>
+    <form onsubmit="createUser(event)">
+      <label>Nombre</label>
+      <input id="u-name" required placeholder="Ana Cliente" />
+      <label>Email</label>
+      <input id="u-email" required type="email" placeholder="ana@demo.com" />
+      <label>Rol</label>
+      <select id="u-role">
+        <option value="CLIENT">CLIENT</option>
+        <option value="PROVIDER">PROVIDER</option>
+      </select>
+      <button type="submit">Crear usuario</button>
+    </form>
+    <hr class="divider" />
+    <div class="list-scroll" id="userList"><p class="empty">Cargando…</p></div>
+  </section>
+
+  <!-- SOLICITUDES -->
+  <section class="card">
+    <h2>Solicitudes de productos</h2>
+    <p class="hint">El cliente crea la solicitud. Haz clic en una para verla en el panel de ofertas.</p>
+    <div id="requestError"></div>
+    <form onsubmit="createRequest(event)">
+      <label>Cliente</label>
+      <select id="r-client"></select>
+      <label>Producto</label>
+      <input id="r-product" required placeholder="Laptops Dell Latitude" />
+      <label>Descripción (opcional)</label>
+      <input id="r-desc" placeholder="Renovación de equipos" />
+      <label>Cantidad</label>
+      <input id="r-qty" required type="number" min="1" value="10" />
+      <button type="submit">Crear solicitud</button>
+    </form>
+    <hr class="divider" />
+    <div class="list-scroll" id="requestList"><p class="empty">Cargando…</p></div>
+  </section>
+
+  <!-- OFERTAS -->
+  <section class="card">
+    <h2>Ofertas</h2>
+    <p id="offerHint" class="hint">Selecciona una solicitud a la izquierda para ver y crear ofertas.</p>
+    <div id="offerError"></div>
+    <form id="offerForm" onsubmit="createOffer(event)" style="display:none;">
+      <label>Proveedor</label>
+      <select id="o-provider"></select>
+      <label>Precio</label>
+      <input id="o-price" required type="number" min="1" step="0.01" placeholder="45000000" />
+      <label>Mensaje (opcional)</label>
+      <input id="o-message" placeholder="Incluye garantía extendida" />
+      <button type="submit">Enviar oferta</button>
+    </form>
+    <hr class="divider" id="offerDivider" style="display:none;" />
+    <div class="list-scroll" id="offerList"></div>
+  </section>
+
+</main>
+
+<script>
+  let state = { users: [], requests: [], selectedRequestId: null };
+
+  function baseUrl() { return document.getElementById('baseUrl').value.replace(/\/$/, ''); }
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtMoney(n) { return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n); }
+  function fmtDate(s) { return new Date(s).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }); }
+
+  async function api(path, options) {
+    const res = await fetch(baseUrl() + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    const body = isJson ? await res.json() : null;
+    if (!res.ok) {
+      const msg = body?.error || `Error HTTP ${res.status}`;
+      const details = body?.details ? '\n' + JSON.stringify(body.details, null, 2) : '';
+      throw new Error(msg + details);
+    }
+    return body;
+  }
+
+  function showError(elId, err) {
+    document.getElementById(elId).innerHTML =
+      `<div class="error-banner">${esc(err.message)}</div>`;
+    setTimeout(() => { document.getElementById(elId).innerHTML = ''; }, 6000);
+  }
+
+  async function checkHealth() {
+    const dot = document.getElementById('connDot');
+    try {
+      await api('/health');
+      dot.className = 'dot ok';
+      return true;
+    } catch {
+      dot.className = 'dot bad';
+      return false;
+    }
+  }
+
+  // ---------- USUARIOS ----------
+  async function fetchUsers() {
+    try {
+      state.users = await api('/api/users');
+      renderUsers();
+      fillUserSelects();
+    } catch (err) {
+      showError('userError', err);
+      document.getElementById('userList').innerHTML =
+        `<p class="empty">No se pudo cargar. ¿Está corriendo el servidor?</p>`;
+    }
+  }
+
+  function renderUsers() {
+    const el = document.getElementById('userList');
+    if (!state.users.length) {
+      el.innerHTML = `<p class="empty">Sin usuarios todavía. Crea uno o corre <code>npm run seed</code>.</p>`;
+      return;
+    }
+    el.innerHTML = state.users.map(u => `
+      <div class="item">
+        <div class="item-title">
+          <span>${esc(u.name)}</span>
+          <span class="badge ${u.role === 'CLIENT' ? 'b-client' : 'b-provider'}">${u.role}</span>
+        </div>
+        <div class="item-meta">${esc(u.email)}</div>
+      </div>
+    `).join('');
+  }
+
+  function fillUserSelects() {
+    const clients = state.users.filter(u => u.role === 'CLIENT');
+    const providers = state.users.filter(u => u.role === 'PROVIDER');
+    const opt = u => `<option value="${u.id}">${esc(u.name)} (${esc(u.email)})</option>`;
+    document.getElementById('r-client').innerHTML =
+      clients.length ? clients.map(opt).join('') : '<option value="">— crea un CLIENT primero —</option>';
+    document.getElementById('o-provider').innerHTML =
+      providers.length ? providers.map(opt).join('') : '<option value="">— crea un PROVIDER primero —</option>';
+  }
+
+  async function createUser(evt) {
+    evt.preventDefault();
+    try {
+      await api('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: document.getElementById('u-name').value,
+          email: document.getElementById('u-email').value,
+          role: document.getElementById('u-role').value,
+        }),
+      });
+      evt.target.reset();
+      document.getElementById('u-role').value = 'CLIENT';
+      await fetchUsers();
+    } catch (err) {
+      showError('userError', err);
+    }
+  }
+
+  // ---------- SOLICITUDES ----------
+  async function fetchRequests() {
+    try {
+      state.requests = await api('/api/requests');
+      renderRequests();
+    } catch (err) {
+      showError('requestError', err);
+      document.getElementById('requestList').innerHTML =
+        `<p class="empty">No se pudo cargar. ¿Está corriendo el servidor?</p>`;
+    }
+  }
+
+  function statusBadgeClass(status) {
+    return { OPEN: 'b-open', IN_NEGOTIATION: 'b-negotiation', CLOSED: 'b-closed' }[status] || '';
+  }
+
+  function renderRequests() {
+    const el = document.getElementById('requestList');
+    if (!state.requests.length) {
+      el.innerHTML = `<p class="empty">Todavía no hay solicitudes. Crea la primera arriba.</p>`;
+      return;
+    }
+    el.innerHTML = state.requests.map(r => `
+      <div class="item ${r.id === state.selectedRequestId ? 'selected' : ''}" onclick="selectRequest('${r.id}')">
+        <div class="item-title">
+          <span>${esc(r.productName)}</span>
+          <span class="badge ${statusBadgeClass(r.status)}">${r.status}</span>
+        </div>
+        <div class="item-meta">Cantidad: ${r.quantity} · ${r._count?.offers ?? 0} oferta(s) · ${fmtDate(r.createdAt)}</div>
+      </div>
+    `).join('');
+  }
+
+  async function createRequest(evt) {
+    evt.preventDefault();
+    const clientId = document.getElementById('r-client').value;
+    if (!clientId) return showError('requestError', new Error('Crea primero un usuario con rol CLIENT.'));
+    try {
+      await api('/api/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          clientId,
+          productName: document.getElementById('r-product').value,
+          description: document.getElementById('r-desc').value || undefined,
+          quantity: Number(document.getElementById('r-qty').value),
+        }),
+      });
+      document.getElementById('r-product').value = '';
+      document.getElementById('r-desc').value = '';
+      document.getElementById('r-qty').value = 10;
+      await fetchRequests();
+    } catch (err) {
+      showError('requestError', err);
+    }
+  }
+
+  function selectRequest(id) {
+    state.selectedRequestId = id;
+    renderRequests();
+    document.getElementById('offerForm').style.display = 'flex';
+    document.getElementById('offerDivider').style.display = 'block';
+    fetchOffers();
+  }
+
+  // ---------- OFERTAS ----------
+  async function fetchOffers() {
+    if (!state.selectedRequestId) return;
+    try {
+      const detail = await api(`/api/requests/${state.selectedRequestId}`);
+      document.getElementById('offerHint').textContent =
+        `Solicitud: "${detail.productName}" · estado ${detail.status}`;
+      renderOffers(detail.offers || []);
+    } catch (err) {
+      showError('offerError', err);
+    }
+  }
+
+  function offerBadgeClass(status) {
+    return { PENDING: 'b-pending', ACCEPTED: 'b-accepted', REJECTED: 'b-rejected', COUNTERED: 'b-countered' }[status] || '';
+  }
+
+  function renderOffers(offers) {
+    const el = document.getElementById('offerList');
+    if (!offers.length) {
+      el.innerHTML = `<p class="empty">Sin ofertas todavía para esta solicitud.</p>`;
+      return;
+    }
+    el.innerHTML = offers.map(o => `
+      <div class="item">
+        <div class="item-title">
+          <span>${fmtMoney(o.price)}</span>
+          <span class="badge ${offerBadgeClass(o.status)}">${o.status}</span>
+        </div>
+        <div class="item-meta">${esc(o.provider?.name ?? o.providerId)} · ${fmtDate(o.createdAt)}</div>
+        ${o.message ? `<div class="item-meta">"${esc(o.message)}"</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function createOffer(evt) {
+    evt.preventDefault();
+    const providerId = document.getElementById('o-provider').value;
+    if (!providerId) return showError('offerError', new Error('Crea primero un usuario con rol PROVIDER.'));
+    try {
+      await api(`/api/requests/${state.selectedRequestId}/offers`, {
+        method: 'POST',
+        body: JSON.stringify({
+          providerId,
+          price: Number(document.getElementById('o-price').value),
+          message: document.getElementById('o-message').value || undefined,
+        }),
+      });
+      document.getElementById('o-price').value = '';
+      document.getElementById('o-message').value = '';
+      await fetchOffers();
+      await fetchRequests();
+    } catch (err) {
+      showError('offerError', err);
+    }
+  }
+
+  // ---------- INIT ----------
+  async function refreshAll() {
+    const ok = await checkHealth();
+    if (!ok) return;
+    await fetchUsers();
+    await fetchRequests();
+  }
+
+  refreshAll();
+</script>
+</body>
+</html>

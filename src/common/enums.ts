@@ -1,11 +1,3 @@
-/**
- * SQLite no soporta el tipo `enum` nativo de Prisma, asi que los campos
- * `role` y `status` se modelan como String en prisma/schema.prisma.
- * Este archivo es la unica fuente de verdad de los valores validos en el
- * lado de TypeScript; los DTOs (Zod) deben mantenerse alineados con estas
- * listas. Si se migra a PostgreSQL, estos mismos valores se pueden mover
- * a `enum` real en el schema sin tocar el codigo de aplicacion.
- */
 
 export const Role = {
   CLIENT: 'CLIENT',
