@@ -12,29 +12,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  CLIENT
-  PROVIDER
-}
-
-enum RequestStatus {
-  OPEN // aceptando ofertas
-  IN_NEGOTIATION // tiene al menos una oferta
-  CLOSED // el cliente cerro la solicitud
-}
-
-enum OfferStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  COUNTERED
-}
+// SQLite no soporta el tipo `enum` nativo de Prisma (si se migra a
+// PostgreSQL, estos campos String se pueden convertir a enum real).
+// Los valores validos se definen y se tipan en src/common/enums.ts,
+// y se validan en el limite HTTP con Zod (modules/*/*.dto.ts).
 
 model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  role      Role
+  role      String // "CLIENT" | "PROVIDER"
   createdAt DateTime @default(now())
 
   requests ProductRequest[] @relation("ClientRequests")
@@ -48,9 +35,9 @@ model ProductRequest {
   productName String
   description String?
   quantity    Int
-  status      RequestStatus @default(OPEN)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  status      String   @default("OPEN") // "OPEN" | "IN_NEGOTIATION" | "CLOSED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   offers Offer[]
 
@@ -66,8 +53,8 @@ model Offer {
   provider   User        @relation("ProviderOffers", fields: [providerId], references: [id])
   price      Float
   message    String?
-  status     OfferStatus @default(PENDING)
-  createdAt  DateTime    @default(now())
+  status     String   @default("PENDING") // "PENDING" | "ACCEPTED" | "REJECTED" | "COUNTERED"
+  createdAt  DateTime @default(now())
 
   @@index([requestId])
   @@index([providerId])

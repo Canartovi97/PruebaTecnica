@@ -1,4 +1,4 @@
-import { RequestStatus } from '@prisma/client';
+import { RequestStatus } from '../../common/enums';
 import prisma from '../../config/database';
 import { CreateRequestInput } from './request.dto';
 

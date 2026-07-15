@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { requestService } from '../requests/request.service';
 import { userService } from '../users/user.service';
 import { CreateOfferInput } from './offer.dto';

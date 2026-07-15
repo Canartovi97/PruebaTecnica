@@ -1,4 +1,4 @@
-import { RequestStatus, Role } from '@prisma/client';
+import { RequestStatus, Role } from '../../common/enums';
 import { ApiError } from '../../utils/ApiError';
 import { userService } from '../users/user.service';
 import { CreateRequestInput } from './request.dto';

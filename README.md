@@ -39,12 +39,13 @@ npm run dev
 El servidor queda disponible en `http://localhost:3000`. Verificación
 rápida: `GET http://localhost:3000/health`.
 
-> **Nota sobre el entorno de desarrollo de esta entrega**: el código se
-> escribió y se verificó con `tsc --noEmit` en un contenedor sandbox sin
-> salida de red hacia `binaries.prisma.sh`, por lo que `npx prisma
-> generate` no se pudo completar allí. En cualquier máquina con acceso a
-> internet normal (la tuya, o el runner de CI/CD), los comandos de arriba
-> funcionan sin cambios — es el flujo estándar de Prisma.
+> **Nota**: SQLite no soporta el tipo `enum` nativo de Prisma. Por eso
+> `role` (en `User`) y `status` (en `ProductRequest` y `Offer`) son
+> columnas `String` en `prisma/schema.prisma`, y sus valores válidos están
+> tipados en TypeScript en [`src/common/enums.ts`](./src/common/enums.ts)
+> en vez de en un `enum` de Prisma. Si migras a PostgreSQL, esos mismos
+> campos se pueden convertir a `enum` real sin tocar el código de
+> aplicación.
 
 ### Build de producción
 

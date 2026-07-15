@@ -1,5 +1,5 @@
 import { Request as ExpressRequest, Response } from 'express';
-import { RequestStatus } from '@prisma/client';
+import { RequestStatus } from '../../common/enums';
 import { catchAsync } from '../../utils/catchAsync';
 import { requestService } from './request.service';
 

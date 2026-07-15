@@ -1,4 +1,4 @@
-import { Role } from '@prisma/client';
+import { Role } from '../../common/enums';
 import { ApiError } from '../../utils/ApiError';
 import { CreateUserInput } from './user.dto';
 import { userRepository } from './user.repository';

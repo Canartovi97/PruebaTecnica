@@ -1,5 +1,5 @@
-import { Role } from '@prisma/client';
 import prisma from '../../config/database';
+import { Role } from '../../common/enums';
 import { CreateUserInput } from './user.dto';
 
 /**
@@ -8,7 +8,7 @@ import { CreateUserInput } from './user.dto';
  */
 export const userRepository = {
   create(data: CreateUserInput) {
-    return prisma.user.create({ data: { ...data, role: data.role as Role } });
+    return prisma.user.create({ data });
   },
 
   findById(id: string) {
