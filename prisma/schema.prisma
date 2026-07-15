@@ -1,0 +1,74 @@
+// Prisma schema
+// Motor: SQLite para desarrollo local sin dependencias externas.
+// En produccion, cambiar "provider" a "postgresql" y DATABASE_URL:
+// el resto del modelo y del codigo de aplicacion no cambia.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+}
+
+enum RequestStatus {
+  OPEN // aceptando ofertas
+  IN_NEGOTIATION // tiene al menos una oferta
+  CLOSED // el cliente cerro la solicitud
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      Role
+  createdAt DateTime @default(now())
+
+  requests ProductRequest[] @relation("ClientRequests")
+  offers   Offer[]          @relation("ProviderOffers")
+}
+
+model ProductRequest {
+  id          String        @id @default(uuid())
+  clientId    String
+  client      User          @relation("ClientRequests", fields: [clientId], references: [id])
+  productName String
+  description String?
+  quantity    Int
+  status      RequestStatus @default(OPEN)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  offers Offer[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model Offer {
+  id         String      @id @default(uuid())
+  requestId  String
+  request    ProductRequest @relation(fields: [requestId], references: [id])
+  providerId String
+  provider   User        @relation("ProviderOffers", fields: [providerId], references: [id])
+  price      Float
+  message    String?
+  status     OfferStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+
+  @@index([requestId])
+  @@index([providerId])
+}
